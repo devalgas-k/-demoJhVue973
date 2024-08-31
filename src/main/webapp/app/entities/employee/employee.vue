@@ -60,6 +60,18 @@
               <span v-text="$t('demoJhVue973App.employee.commissionPct')">Commission Pct</span>
               <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'commissionPct'"></jhi-sort-indicator>
             </th>
+            <th scope="row" v-on:click="changeOrder('level')">
+              <span v-text="$t('demoJhVue973App.employee.level')">Level</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'level'"></jhi-sort-indicator>
+            </th>
+            <th scope="row" v-on:click="changeOrder('contract')">
+              <span v-text="$t('demoJhVue973App.employee.contract')">Contract</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'contract'"></jhi-sort-indicator>
+            </th>
+            <th scope="row" v-on:click="changeOrder('cv')">
+              <span v-text="$t('demoJhVue973App.employee.cv')">Cv</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'cv'"></jhi-sort-indicator>
+            </th>
             <th scope="row" v-on:click="changeOrder('manager.id')">
               <span v-text="$t('demoJhVue973App.employee.manager')">Manager</span>
               <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'manager.id'"></jhi-sort-indicator>
@@ -83,6 +95,12 @@
             <td>{{ employee.hireDate ? $d(Date.parse(employee.hireDate), 'short') : '' }}</td>
             <td>{{ employee.salary }}</td>
             <td>{{ employee.commissionPct }}</td>
+            <td>{{ employee.level }}</td>
+            <td v-text="$t('demoJhVue973App.Contract.' + employee.contract)">{{ employee.contract }}</td>
+            <td>
+              <a v-if="employee.cv" v-on:click="openFile(employee.cvContentType, employee.cv)" v-text="$t('entity.action.open')">open</a>
+              <span v-if="employee.cv">{{ employee.cvContentType }}, {{ byteSize(employee.cv) }}</span>
+            </td>
             <td>
               <div v-if="employee.manager">
                 <router-link :to="{ name: 'EmployeeView', params: { employeeId: employee.manager.id } }">{{
@@ -125,16 +143,6 @@
             </td>
           </tr>
         </tbody>
-        <infinite-loading
-          ref="infiniteLoading"
-          v-if="totalItems > itemsPerPage"
-          :identifier="infiniteId"
-          slot="append"
-          @infinite="loadMore"
-          force-use-infinite-wrapper=".el-table__body-wrapper"
-          :distance="20"
-        >
-        </infinite-loading>
       </table>
     </div>
     <b-modal ref="removeEntity" id="removeEntity">
@@ -162,6 +170,14 @@
         </button>
       </div>
     </b-modal>
+    <div v-show="employees && employees.length > 0">
+      <div class="row justify-content-center">
+        <jhi-item-count :page="page" :total="queryCount" :itemsPerPage="itemsPerPage"></jhi-item-count>
+      </div>
+      <div class="row justify-content-center">
+        <b-pagination size="md" :total-rows="totalItems" v-model="page" :per-page="itemsPerPage" :change="loadPage(page)"></b-pagination>
+      </div>
+    </div>
   </div>
 </template>
 
